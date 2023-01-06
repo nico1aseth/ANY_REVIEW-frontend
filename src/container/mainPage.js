@@ -20,7 +20,7 @@ import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
 const instance = axios.create({
-  baseURL: 'http://localhost:4000/api',
+  baseURL: 'https://anyreview-backend.onrender.com/api',
 })
 
 function Footer() {

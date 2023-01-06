@@ -18,112 +18,121 @@ import Spinner from '../components/Spinner'
 import axios from 'axios'
 
 const instance = axios.create({
-    baseURL: 'http://localhost:4000/api'
+  baseURL: 'https://anyreview-backend.onrender.com/api',
 })
 
 function Footer() {
-    return (
-        <Typography variant='body2' color='text.secondary' align='center'>
-            {'Natinaol Taiwan University '}
-            {new Date().getFullYear()}
-            {'.'}
-        </Typography>
-    )
+  return (
+    <Typography variant='body2' color='text.secondary' align='center'>
+      {'Natinaol Taiwan University '}
+      {new Date().getFullYear()}
+      {'.'}
+    </Typography>
+  )
 }
 
 const theme = createTheme()
 
 export default () => {
-    const [posts, setPosts] = useState([])
-    const { state } = useLocation();
-    const [viewModalOpen, setViewModalOpen] = useState(false)
-    const [load, setLoad] = useState(true)
-    const [title, setTitle] = useState("")
-    const [body, setBody] = useState("")
-    const [author, setAuthor] = useState("")
-    const [score, setScore] = useState(0);
+  const [posts, setPosts] = useState([])
+  const { state } = useLocation()
+  const [viewModalOpen, setViewModalOpen] = useState(false)
+  const [load, setLoad] = useState(true)
+  const [title, setTitle] = useState('')
+  const [body, setBody] = useState('')
+  const [author, setAuthor] = useState('')
+  const [score, setScore] = useState(0)
 
-    const searchPost = useCallback(async () => {
-        const data = await instance.get('/search', { params: { title: state.query } })
-        setPosts(data.data.contents)
-        setLoad(false)
-    }, [])
+  const searchPost = useCallback(async () => {
+    const data = await instance.get('/search', {
+      params: { title: state.query },
+    })
+    setPosts(data.data.contents)
+    setLoad(false)
+  }, [])
 
+  useEffect(() => {
+    searchPost()
+  }, [state])
 
-    useEffect(() => {
-        searchPost()
-    }, [state])
-
-
-
-    return (
-
-        <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <main>
-                <ViewModal open={viewModalOpen} onClose={() => { setViewModalOpen(false) }}
-                    title={title} body={body} author={author} score={score}
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <main>
+        <ViewModal
+          open={viewModalOpen}
+          onClose={() => {
+            setViewModalOpen(false)
+          }}
+          title={title}
+          body={body}
+          author={author}
+          score={score}
+        ></ViewModal>
+        <Container sx={{ py: 8 }} maxWidth='md'>
+          {load ? <Spinner></Spinner> : null}
+          <Grid container spacing={4}>
+            {posts.map((post) => (
+              <Grid item key={post._id} xs={12} sm={6} md={4}>
+                <Card
+                  sx={{
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                  }}
                 >
-                </ViewModal>
-                <Container sx={{ py: 8 }} maxWidth='md'>
-                    {load? <Spinner></Spinner>:null}
-                    <Grid container spacing={4}>
-                        {posts.map((post) => (
-                            <Grid item key={post._id} xs={12} sm={6} md={4} >
-                                <Card
-                                    sx={{
-                                        height: '100%',
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                    }}
-                                >
-                                    <CardMedia
-                                        component='img'
-                                        sx={{
-                                            // 16:9
-                                            pt: '56.25%',
-                                        }}
-                                        image={post.img}
-                                        alt='random'
-                                    />
-                                    <CardContent sx={{ flexGrow: 1 }}>
-                                        <Typography gutterBottom variant='h5' component='h2'>
-                                            {post.title}
-                                        </Typography>
-                                        <Typography>
-                                            {`author: ${post.author}`}
-                                        </Typography>
-                                        <Rating value={post.score}></Rating>
-                                    </CardContent>
-                                    <CardActions>
-                                        <Button size='small' onClick={() => {
-                                            setViewModalOpen(true)
-                                            setTitle(post.title)
-                                            setBody(post.body)
-                                            setAuthor(post.author)
-                                            setScore(post.score)
-                                        }}>View</Button>
-                                    </CardActions>
-                                </Card>
-                            </Grid>
-                        ))}
-                    </Grid>
-                    {posts.length === 0 && !load ? <Typography
-                        component='h1'
-                        variant='h2'
-                        align='center'
-                        color='text.primary'
-                        gutterBottom
+                  <CardMedia
+                    component='img'
+                    sx={{
+                      // 16:9
+                      pt: '56.25%',
+                    }}
+                    image={post.img}
+                    alt='random'
+                  />
+                  <CardContent sx={{ flexGrow: 1 }}>
+                    <Typography gutterBottom variant='h5' component='h2'>
+                      {post.title}
+                    </Typography>
+                    <Typography>{`author: ${post.author}`}</Typography>
+                    <Rating value={post.score}></Rating>
+                  </CardContent>
+                  <CardActions>
+                    <Button
+                      size='small'
+                      onClick={() => {
+                        setViewModalOpen(true)
+                        setTitle(post.title)
+                        setBody(post.body)
+                        setAuthor(post.author)
+                        setScore(post.score)
+                      }}
                     >
-                        No results matching
-                    </Typography> : null}
-                </Container>
-            </main>
-            {/* Footer */}
+                      View
+                    </Button>
+                  </CardActions>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+          {posts.length === 0 && !load ? (
+            <Typography
+              component='h1'
+              variant='h2'
+              align='center'
+              color='text.primary'
+              gutterBottom
+            >
+              No results matching
+            </Typography>
+          ) : null}
+        </Container>
+      </main>
+      {/* Footer */}
 
-            <Box sx={{ bgcolor: 'background.paper', p: 6 }} component='footer'>
-                <Footer />
-            </Box>
-        </ThemeProvider>
-    )
+      <Box sx={{ bgcolor: 'background.paper', p: 6 }} component='footer'>
+        <Footer />
+      </Box>
+    </ThemeProvider>
+  )
 }
